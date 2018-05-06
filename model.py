@@ -3,11 +3,7 @@ from math import pi, sqrt
 
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
-from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import LabelBinarizer
 
 train_amount = 500
 X, y = [], []
@@ -33,7 +29,8 @@ for SIGMA in SIGMAS:
             for THRESHOLD in THRESHOLDS:
                 i += 1
                 print(str(i) + ' / ' + str(candidates))
-                KERNEL = np.exp(-KERNEL_BASE ** 2 / (2 * SIGMA ** 2)) / sqrt(pi * 2) / SIGMA - OFFSET
+                KERNEL = np.exp(-KERNEL_BASE ** 2 / (2 * SIGMA ** 2)) \
+                    / sqrt(pi * 2) / SIGMA - OFFSET
                 pred = []
                 for x in X:
                     cur_chunk = np.abs(x)

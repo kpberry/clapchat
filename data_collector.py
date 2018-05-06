@@ -1,5 +1,4 @@
 import os
-import wave
 from math import pi, sqrt
 from uuid import uuid4
 
@@ -24,7 +23,7 @@ clap = False
 if not os.path.exists('data'):
     os.mkdir('data')
 
-for i in range(300):
+for k in range(300):
     print("Recording " + ("clap" if clap else "noise") + "...")
     audio = pyaudio.PyAudio()
 
@@ -43,9 +42,9 @@ for i in range(300):
     else:
         np.save('data/' + str(uuid4()) + '-noise.npy', frames)
 
-    if i == 150:
+    if k == 150:
         clap = not clap
-    
+
     stream.stop_stream()
     stream.close()
 

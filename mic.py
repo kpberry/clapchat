@@ -1,4 +1,3 @@
-import wave
 from math import pi, sqrt
 
 import matplotlib.pyplot as plt
