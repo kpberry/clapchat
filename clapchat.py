@@ -3,35 +3,35 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from math import pi, sqrt
 
 import numpy as np
 import pyaudio
 from cv2 import VideoCapture, imwrite
 
+
 FORMAT = pyaudio.paFloat32
 CHANNELS = 2
-RATE = 44100
-CHUNK = 256
+SAMPLE_RATE = 44100
+CHUNK_SIZE = 1024
+WINDOW_SIZE = 128
+THRESHOLD = 0.15
 
-# Parameters determined through grid search on about 700 test examples
-SIGMA = 0.6
-KERNEL_BASE = np.arange(-50, 50, 1)
-KERNEL = np.exp(-KERNEL_BASE ** 2 / (2 * SIGMA ** 2)) / sqrt(pi * 2) / SIGMA
-KERNEL -= 0.01
-THRESHOLD = 1e-4
+
+def has_clap(data: np.ndarray, window_size: int, threshold: float):
+    sums = np.cumsum(np.abs(data))
+    moving_averages = (sums[window_size:] - sums[:-window_size]) / window_size
+    return np.any(moving_averages > threshold)
+
 
 audio = pyaudio.PyAudio()
 
-# start Recording
-stream = audio.open(format=FORMAT, channels=CHANNELS,
-                    rate=RATE, input=True,
-                    frames_per_buffer=CHUNK)
+stream = audio.open(
+    format=FORMAT, channels=CHANNELS, rate=SAMPLE_RATE, input=True, frames_per_buffer=CHUNK_SIZE
+)
 
 while True:
-    cur_chunk = np.abs(np.fromstring(stream.read(CHUNK)))
-    convolved = np.convolve(KERNEL, cur_chunk)
-    if np.max(convolved) > THRESHOLD:
+    cur_chunk = np.frombuffer(stream.read(CHUNK_SIZE), dtype='float32')
+    if has_clap(cur_chunk, WINDOW_SIZE, THRESHOLD):
         vc = VideoCapture(0)
 
         if vc.isOpened():
@@ -41,7 +41,6 @@ while True:
                 vc.release()
                 break
 
-# stop Recording
 stream.stop_stream()
 stream.close()
 audio.terminate()
