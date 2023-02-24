@@ -8,6 +8,8 @@ import numpy as np
 import pyaudio
 from cv2 import VideoCapture, imwrite
 
+from detection import has_clap
+
 
 FORMAT = pyaudio.paFloat32
 CHANNELS = 2
@@ -15,12 +17,6 @@ SAMPLE_RATE = 44100
 CHUNK_SIZE = 1024
 WINDOW_SIZE = 128
 THRESHOLD = 0.15
-
-
-def has_clap(data: np.ndarray, window_size: int, threshold: float):
-    sums = np.cumsum(np.abs(data))
-    moving_averages = (sums[window_size:] - sums[:-window_size]) / window_size
-    return np.any(moving_averages > threshold)
 
 
 audio = pyaudio.PyAudio()
